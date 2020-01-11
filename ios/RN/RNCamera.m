@@ -737,7 +737,15 @@ BOOL _sessionInterrupted = NO;
     NSInteger orientation = [options[@"orientation"] integerValue];
 
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+    // [connection setVideoOrientation:orientation];
+        
+    if ([options[@"orientation"] integerValue]) {
+        orientation = [options[@"orientation"] integerValue];
+    } else {
+        orientation = [RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]];
+    }
     [connection setVideoOrientation:orientation];
+
     @try {
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
             if (imageSampleBuffer && !error) {
@@ -1205,7 +1213,7 @@ BOOL _sessionInterrupted = NO;
             return;
         }
 
-
+        self.session.sessionPreset = AVCaptureSessionPresetPhoto;
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
